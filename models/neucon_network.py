@@ -208,7 +208,8 @@ class NeuConNet(nn.Module):
                 outputs['coords'] = pre_coords
                 outputs['tsdf'] = pre_tsdf
 
-        return outputs, loss_dict
+        global_volume = self.gru_fusion.get_global_volume() if self.cfg.FUSION.FUSION_ON else None
+        return outputs, loss_dict, global_volume
 
     @staticmethod
     def compute_loss(tsdf, occ, tsdf_target, occ_target, loss_weight=(1, 1),

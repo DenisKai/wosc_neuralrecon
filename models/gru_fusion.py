@@ -179,6 +179,9 @@ class GRUFusion(nn.Module):
 
         return outputs
 
+    def get_global_volume(self):
+        return self.global_volume
+
     def forward(self, coords, values_in, inputs, scale=2, outputs=None, save_mesh=False):
         '''
         :param coords: (Tensor), coordinates of voxels, (N, 4) (4 : Batch ind, x, y, z)
@@ -308,6 +311,8 @@ class GRUFusion(nn.Module):
                 outputs = self.save_mesh(scale, outputs, self.scene_name[scale])
 
         if self.direct_substitude:
+            # Last step global volume merge
             return outputs
         else:
+            # Coarse-to-fine steps
             return updated_coords_all, values_all, tsdf_target_all, occ_target_all

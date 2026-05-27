@@ -46,7 +46,7 @@ Download the [pretrained weights](https://drive.google.com/file/d/1zKuWqm9weHSm9
 You can also use [gdown](https://github.com/wkentaro/gdown) to download it in command line:
 ```bash
 mkdir checkpoints && cd checkpoints
-gdown --id 1zKuWqm9weHSm98SZKld1PbEddgLOQkQV
+gdown 1zKuWqm9weHSm98SZKld1PbEddgLOQkQV
 ```
 
 ### Real-time Demo on Custom Data with Camera Poses from ARKit.

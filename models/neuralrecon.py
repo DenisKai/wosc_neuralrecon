@@ -79,7 +79,12 @@ class NeuralRecon(nn.Module):
 
         # coarse-to-fine decoder: SparseConv and GRU Fusion.
         # in: image feature; out: sparse coords and tsdf
-        outputs, loss_dict = self.neucon_net(features, inputs, outputs)
+        outputs, loss_dict, global_volume = self.neucon_net(features, inputs, outputs)
+
+        # TODO: fuse different levels of global volume together and save for each level
+        coarse_volume = global_volume[2]
+        fine_volume = global_volume[1]
+        finest_volume = global_volume[0]
 
         # fuse to global volume.
         if not self.training and 'coords' in outputs.keys():
