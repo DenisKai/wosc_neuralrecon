@@ -26,6 +26,8 @@ class NeuralRecon(nn.Module):
         self.neucon_net = NeuConNet(cfg.MODEL)
         # for fusing to global volume
         self.fuse_to_global = GRUFusion(cfg.MODEL, direct_substitute=True)
+        self.fuse_to_fine = GRUFusion(cfg.MODEL, direct_substitute=True)
+        self.fuse_to_coarsest = GRUFusion(cfg.MODEL, direct_substitute=True)
 
     def normalizer(self, x):
         """ Normalizes the RGB images to the input range"""
@@ -79,16 +81,18 @@ class NeuralRecon(nn.Module):
 
         # coarse-to-fine decoder: SparseConv and GRU Fusion.
         # in: image feature; out: sparse coords and tsdf
-        outputs, loss_dict, global_volume = self.neucon_net(features, inputs, outputs)
-
-        # TODO: fuse different levels of global volume together and save for each level
-        coarse_volume = global_volume[2]
-        fine_volume = global_volume[1]
-        finest_volume = global_volume[0]
+        outputs, loss_dict = self.neucon_net(features, inputs, outputs)
 
         # fuse to global volume.
-        if not self.training and 'coords' in outputs.keys():
-            outputs = self.fuse_to_global(outputs['coords'], outputs['tsdf'], inputs, self.n_scales, outputs, save_mesh)
+        # only happens on last level, as it contains key 'coords'
+
+        #TODO change this so it's done on all levels
+        #if not self.training and 'coords' in outputs.keys():
+        #    outputs = self.fuse_to_global(outputs['coords'], outputs['tsdf'], inputs, self.n_scales, outputs, save_mesh)
+        
+        outputs_coarse = self.fuse_to_coarsest(outputs['coords_scale0'], outputs['tsdf_scale0'], inputs, 0, {}, save_mesh)
+        outputs_fine = self.fuse_to_fine(outputs['coords_scale1'], outputs['tsdf_scale1'], inputs, 1, {}, save_mesh)
+        outputs_finest = self.fuse_to_global(outputs['coords_scale2'], outputs['tsdf_scale2'], inputs, 2, {}, save_mesh)
 
         # gather loss.
         print_loss = 'Loss: '
@@ -101,4 +105,4 @@ class NeuralRecon(nn.Module):
             weighted_loss += v * self.cfg.LW[i]
 
         loss_dict.update({'total_loss': weighted_loss})
-        return outputs, loss_dict
+        return outputs_finest, outputs_fine, outputs_coarse, loss_dict

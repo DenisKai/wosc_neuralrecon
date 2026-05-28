@@ -204,12 +204,15 @@ class NeuConNet(nn.Module):
 
             pre_feat = torch.cat([pre_feat, pre_tsdf, pre_occ], dim=1)
 
-            if i == self.cfg.N_LAYER - 1:
-                outputs['coords'] = pre_coords
-                outputs['tsdf'] = pre_tsdf
+            # coords and tsdf only added on last level
+            #if i == self.cfg.N_LAYER - 1:
+            #    outputs['coords'] = pre_coords
+            #    outputs['tsdf'] = pre_tsdf
+            # TODO change this so it's done on all levels
+            outputs[f'coords_scale{i}'] = pre_coords
+            outputs[f'tsdf_scale{i}'] = pre_tsdf
 
-        global_volume = self.gru_fusion.get_global_volume() if self.cfg.FUSION.FUSION_ON else None
-        return outputs, loss_dict, global_volume
+        return outputs, loss_dict
 
     @staticmethod
     def compute_loss(tsdf, occ, tsdf_target, occ_target, loss_weight=(1, 1),

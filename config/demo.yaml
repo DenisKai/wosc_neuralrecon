@@ -3,7 +3,7 @@ BATCH_SIZE: 1
 SAVE_SCENE_MESH: True
 SAVE_INCREMENTAL: False
 VIS_INCREMENTAL: False
-REDUCE_GPU_MEM: True  # Drastically reduces GPU memory and will slow down inference a bit.
+REDUCE_GPU_MEM: False  # Drastically reduces GPU memory and will slow down inference a bit.
 LOGDIR: 'checkpoints'
 SAVE_FREQ: 1
 MODE: 'test'

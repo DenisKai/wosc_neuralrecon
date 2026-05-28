@@ -179,8 +179,20 @@ class GRUFusion(nn.Module):
 
         return outputs
 
-    def get_global_volume(self):
-        return self.global_volume
+    def get_scale_tsdf(self, scale):
+        """
+        Returns (coords_world, tsdf_values) for the given scale from the
+        accumulated global_volume. Coords are (N,3) float, tsdf is (N,1) float.
+        Returns None if the scale has no accumulated volume yet.
+        """
+        if self.global_volume[scale] is None:
+            return None, None
+        sparse = self.global_volume[scale]
+        # sparse.C shape: (N, 4) — [batch, x, y, z] in voxel indices
+        # sparse.F shape: (N, C) — first channel is TSDF
+        coords_vox = sparse.C[:, 1:].float()   # (N, 3)  voxel-index space
+        tsdf_vals  = sparse.F[:, :1]           # (N, 1)
+        return coords_vox, tsdf_vals
 
     def forward(self, coords, values_in, inputs, scale=2, outputs=None, save_mesh=False):
         '''
@@ -307,11 +319,12 @@ class GRUFusion(nn.Module):
                     tsdf_target_all = torch.cat([tsdf_target_all, tsdf_target])
                     occ_target_all = torch.cat([occ_target_all, occ_target])
 
+            # This is directly called from neuralrecon.py -> fuse_to_global
             if self.direct_substitude and save_mesh:
                 outputs = self.save_mesh(scale, outputs, self.scene_name[scale])
 
+        # This is directly called from neuralrecon.py -> fuse_to_global
         if self.direct_substitude:
-            # Last step global volume merge
             return outputs
         else:
             # Coarse-to-fine steps

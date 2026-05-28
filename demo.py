@@ -73,7 +73,7 @@ with torch.no_grad():
         save_scene = (cfg.SAVE_SCENE_MESH and frag_idx == frag_len - 1) or cfg.SAVE_INCREMENTAL or cfg.VIS_INCREMENTAL
 
         start_time = time.time()
-        outputs, loss_dict = model(sample, save_scene)
+        outputs, outputs_fine, outputs_coarse, loss_dict = model(sample, save_scene)
         duration += time.time() - start_time
 
         if cfg.REDUCE_GPU_MEM:
@@ -98,7 +98,10 @@ with torch.no_grad():
                 2. Extremely difficult scene.
                 If you can run with the demo data without any problem, please submit a issue with the failed data attatched, thanks!
             """
-            save_mesh_scene.save_scene_eval(epoch_idx, outputs)
+
+            save_mesh_scene.save_scene_eval(epoch_idx, outputs_coarse, scale=0)
+            save_mesh_scene.save_scene_eval(epoch_idx, outputs_fine, scale=1)
+            save_mesh_scene.save_scene_eval(epoch_idx, outputs, scale=2)
         
         gpu_mem_usage.append(torch.cuda.memory_reserved())
         

@@ -266,7 +266,7 @@ class SaveScene(object):
             # save
             mesh.export(os.path.join(save_path, 'mesh_{}.ply'.format(self.keyframe_id)))
 
-    def save_scene_eval(self, epoch, outputs, batch_idx=0):
+    def save_scene_eval(self, epoch, outputs, batch_idx=0, scale=None):
         tsdf_volume = outputs['scene_tsdf'][batch_idx].data.cpu().numpy()
         origin = outputs['origin'][batch_idx].data.cpu().numpy()
 
@@ -285,7 +285,7 @@ class SaveScene(object):
             np.savez_compressed(
                 os.path.join(save_path, '{}.npz'.format(self.scene_name)),
                 **data)
-            mesh.export(os.path.join(save_path, '{}.ply'.format(self.scene_name)))
+            mesh.export(os.path.join(save_path, '{}scale{}.ply'.format(self.scene_name, scale if scale is not None else '')))
 
     def __call__(self, outputs, inputs, epoch_idx):
         # no scene saved, skip
