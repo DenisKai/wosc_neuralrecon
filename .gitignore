@@ -6,7 +6,6 @@ outputs
 *.bin
 checkpoints
 data/
-results/
 incremental_results/
 
 # Byte-compiled / optimized / DLL files

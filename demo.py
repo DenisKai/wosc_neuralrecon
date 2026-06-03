@@ -10,7 +10,8 @@ from models import NeuralRecon
 from utils import SaveScene
 from config import cfg, update_config
 from datasets import find_dataset_def, transforms
-from tools.process_arkit_data import process_data
+#from tools.process_arkit_data import process_data
+from tools.process_replica_data import process_replica as process_data
 
 
 parser = argparse.ArgumentParser(description='NeuralRecon Real-time Demo')
@@ -24,15 +25,23 @@ parser.add_argument('opts',
                     default=None,
                     nargs=argparse.REMAINDER)
 
+parser.add_argument('--window_size',   type=int,   default=9,    help='frames per fragment')
+parser.add_argument('--min_angle',     type=float, default=15.0, help='min rotation (degrees) between keyframes')
+parser.add_argument('--min_distance',  type=float, default=0.1,  help='min translation (meters) between keyframes')
+
 # parse arguments and check
 args = parser.parse_args()
 update_config(cfg, args)
 
-if not os.path.exists(os.path.join(cfg.TEST.PATH, 'SyncedPoses.txt')):
-    logger.info("First run on this captured data, start the pre-processing...")
-    process_data(cfg.TEST.PATH)
-else:
-    logger.info("Found SyncedPoses.txt, skipping data pre-processing...")
+#if not os.path.exists(os.path.join(cfg.TEST.PATH, 'SyncedPoses.txt')):
+logger.info("Start the pre-processing...")
+#process_data(cfg.TEST.PATH)
+process_data(cfg.TEST.PATH,
+        window_size=args.window_size,
+        min_angle=args.min_angle,
+        min_distance=args.min_distance)
+#else:
+#    logger.info("Found SyncedPoses.txt, skipping data pre-processing...")
 
 logger.info("Running NeuralRecon...")
 transform = [transforms.ResizeImage((640, 480)),
