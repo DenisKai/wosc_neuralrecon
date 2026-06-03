@@ -26,7 +26,7 @@ def load_as_o3d_pointcloud(path, n_samples):
     pcd.points = o3d.utility.Vector3dVector(pts.astype(np.float64))
     return pcd
 
-def evaluate(pred_path, gt_path, n_samples=200000, thresholds=[0.05, 0.1], z_shift=1.5):
+def evaluate(pred_path, gt_path, n_samples=200000, thresholds=[0.05, 0.1, 0.2], z_shift=1.5):
     pred_pc = load_as_o3d_pointcloud(pred_path, n_samples)
     gt_pc   = load_as_o3d_pointcloud(gt_path,   n_samples)
 
@@ -60,6 +60,8 @@ if __name__ == '__main__':
     parser.add_argument('--pred',    required=True)
     parser.add_argument('--gt',      required=True)
     parser.add_argument('--scene',   default='unknown')
+    parser.add_argument('--thresholds', nargs='+', type=float,
+                    default=[0.05, 0.10, 0.20])
     parser.add_argument('--z_shift', type=float, default=1.5,
                         help='z offset applied during fragment generation (default 1.5)')
     args = parser.parse_args()
